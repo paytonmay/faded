@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimized Glitchy Static Effect</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black;
+            color: white;
+            font-family: "Courier New", Courier, monospace; /* Terminal font for the whole page */
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        .title-container {
+            width: 512px;
+            height: auto;
+            margin-bottom: 20px;
+            z-index: 2; /* Ensures the title is above the static effect */
+        }
+
+        .gif-container {
+            width: 512px;
+            height: 512px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            z-index: 2; /* Ensures the GIF is above the static effect */
+        }
+
+        /* Terminal green text with black background */
+        .text-terminal {
+            width: 512px; /* Match the width with the image */
+            height: auto;
+            font-size: 18px;
+            color: #00ff00; /* Terminal green text */
+            font-family: "Courier New", Courier, monospace; /* Old school terminal font */
+            background-color: black; /* Black background behind the text */
+            padding: 10px; /* Add some padding to make it look nicer */
+            border-radius: 5px; /* Slight rounding for a cleaner look */
+            z-index: 2;
+        }
+
+        .cursor {
+            display: inline-block;
+            background-color: #00ff00; /* Terminal green cursor */
+            width: 10px;
+            height: 18px;
+            animation: blink 1s steps(2, start) infinite;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Dynamic TV Static Overlay */
+        .static-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none; /* Allows clicks to pass through */
+            z-index: 1;
+            background-color: black;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .pixel {
+            width: 4px; /* Smaller pixel size */
+            height: 4px;
+            background-color: white;
+            opacity: 0.375; /* 25% more transparent */
+        }
+
+        /* Audio Toggle Button */
+        .audio-toggle {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: black; /* Black background */
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: #00ff00; /* Terminal green text */
+            z-index: 2;
+        }
+
+        .audio-toggle:hover {
+            background-color: rgba(0, 255, 0, 0.6); /* Terminal green on hover */
+        }
+
+        .audio-toggle span {
+            font-size: 20px;
+            color: #00ff00; /* Terminal green */
+        }
+    </style>
+</head>
+<body>
+    <!-- Dynamic Static Overlay -->
+    <div class="static-overlay" id="static-overlay"></div>
+
+    <!-- Title Image Container -->
+    <div class="title-container">
+        <img src="title-image.png" alt="Title Image" width="512px">
+    </div>
+
+    <!-- GIF Container -->
+    <div class="gif-container">
+        <img id="gif-image" src="gifs/gif1.gif" alt="GIF Image" width="512px" height="512px"> <!-- Start with gif1.gif -->
+    </div>
+
+    <!-- Terminal Text Area -->
+    <div class="text-terminal" id="text-terminal">
+        <span id="text"></span><span class="cursor"></span>
+    </div>
+
+    <!-- Audio Toggle Button -->
+    <button class="audio-toggle" id="audio-toggle">
+        <span>&#9658;</span> <!-- Play Icon -->
+    </button>
+
+    <!-- Audio File -->
+    <audio id="background-audio" loop>
+        <source src="audio/background-audio.mp3" type="audio/mp3"> <!-- Replace with your audio file path -->
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        // Create Static Effect Dynamically
+        const staticOverlay = document.getElementById('static-overlay');
+        const pixelCount = Math.floor(window.innerWidth * window.innerHeight / (4 * 4)); // Smaller pixels, more of them
+
+        function createPixel() {
+            const pixel = document.createElement('div');
+            pixel.classList.add('pixel');
+            pixel.style.backgroundColor = Math.random() > 0.5 ? 'white' : 'black';
+            return pixel;
+        }
+
+        function generateStatic() {
+            staticOverlay.innerHTML = ''; // Clear previous pixels
+            for (let i = 0; i < pixelCount; i++) {
+                staticOverlay.appendChild(createPixel());
+            }
+        }
+
+        setInterval(generateStatic, 1000); // Slower refresh rate for less frequent changes
+
+        // Audio Play/Pause Toggle
+        const audioToggle = document.getElementById('audio-toggle');
+        const audioElement = document.getElementById('background-audio');
+        let isPlaying = false;
+
+        audioToggle.addEventListener('click', () => {
+            if (isPlaying) {
+                audioElement.pause();
+                audioToggle.innerHTML = '<span>&#9658;</span>'; // Play Icon
+            } else {
+                audioElement.play();
+                audioToggle.innerHTML = '<span>&#10074;&#10074;</span>'; // Pause Icon
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // GIF Cycling
+        const totalGifs = 838;
+        let gifIndex = 2;
+        const gifImage = document.getElementById('gif-image');
+
+        function cycleGifs() {
+            gifImage.src = `gifs/gif${gifIndex}.gif`;
+            gifIndex = (gifIndex % totalGifs) + 1;
+        }
+        setInterval(cycleGifs, 5000);
+
+        // Terminal-like Typing Effect
+        let messages = [];
+        let textIndex = 0;
+        let charIndex = 0;
+        const textElement = document.getElementById('text');
+        let typingSpeed = 100;
+
+        async function loadMessages() {
+            try {
+                const response = await fetch('messages.json');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                messages = data.messages;
+                typeText();
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        }
+
+        function typeText() {
+            if (charIndex < messages[textIndex].length) {
+                textElement.textContent += messages[textIndex].charAt(charIndex);
+                charIndex++;
+                setTimeout(typeText, typingSpeed);
+            } else {
+                setTimeout(clearText, 2000);
+            }
+        }
+
+        function clearText() {
+            textElement.textContent = "";
+            charIndex = 0;
+            textIndex = (textIndex + 1) % messages.length;
+            setTimeout(typeText, 500);
+        }
+
+        loadMessages();
+    </script>
+</body>
+</html>
