@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimized Glitchy Static Effect</title>
+    <title>Responsive Static Effect</title>
     <style>
         body {
             display: flex;
@@ -14,87 +14,63 @@
             margin: 0;
             background-color: black;
             color: white;
-            font-family: "Courier New", Courier, monospace; /* Terminal font for the whole page */
-            overflow: hidden; /* Prevent scrolling */
+            font-family: "Courier New", Courier, monospace;
+            overflow: hidden;
         }
 
-        .title-container {
-            width: 512px;
-            height: auto;
-            margin-bottom: 20px;
-            z-index: 2; /* Ensures the title is above the static effect */
-        }
-
-        .gif-container {
-            width: 512px;
-            height: 512px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            z-index: 2; /* Ensures the GIF is above the static effect */
-        }
-
-        /* Terminal green text with black background */
-        .text-terminal {
-            width: 512px; /* Match the width with the image */
-            height: auto;
-            font-size: 18px;
-            color: #00ff00; /* Terminal green text */
-            font-family: "Courier New", Courier, monospace; /* Old school terminal font */
-            background-color: black; /* Black background behind the text */
-            padding: 10px; /* Add some padding to make it look nicer */
-            border-radius: 5px; /* Slight rounding for a cleaner look */
-            z-index: 2;
-        }
-
-        .cursor {
-            display: inline-block;
-            background-color: #00ff00; /* Terminal green cursor */
-            width: 10px;
-            height: 18px;
-            animation: blink 1s steps(2, start) infinite;
-        }
-
-        @keyframes blink {
-            0% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        /* Dynamic TV Static Overlay */
         .static-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            pointer-events: none; /* Allows clicks to pass through */
+            pointer-events: none;
             z-index: 1;
+        }
+
+        .static-overlay img {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+        }
+
+        .title-container, .gif-container, .text-terminal {
+            z-index: 2;
+        }
+
+        .title-container img, .gif-container img {
+            width: 512px;
+            height: auto;
+        }
+
+        .text-terminal {
+            width: 512px;
+            font-size: 18px;
+            color: #00ff00;
             background-color: black;
-            display: flex;
-            flex-wrap: wrap;
+            padding: 10px;
+            border-radius: 5px;
         }
 
-        .pixel {
-            width: 4px; /* Smaller pixel size */
-            height: 4px;
-            background-color: white;
-            opacity: 0.375; /* 25% more transparent */
+        .cursor {
+            display: inline-block;
+            background-color: #00ff00;
+            width: 10px;
+            height: 18px;
+            animation: blink 1s steps(2, start) infinite;
         }
 
-        /* Audio Toggle Button */
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
         .audio-toggle {
             position: absolute;
             bottom: 20px;
             right: 20px;
-            background-color: black; /* Black background */
+            background-color: black;
             border: none;
             border-radius: 50%;
             width: 40px;
@@ -103,32 +79,56 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            color: #00ff00; /* Terminal green text */
+            color: #00ff00;
             z-index: 2;
         }
 
         .audio-toggle:hover {
-            background-color: rgba(0, 255, 0, 0.6); /* Terminal green on hover */
+            background-color: rgba(0, 255, 0, 0.6);
         }
 
         .audio-toggle span {
             font-size: 20px;
-            color: #00ff00; /* Terminal green */
+            color: #00ff00;
+        }
+
+        /* Media Query for Mobile Screens */
+        @media (max-width: 768px) {
+            .title-container img, .gif-container img, .text-terminal {
+                width: 90vw; /* Scale to 90% of the viewport width */
+            }
+
+            .text-terminal {
+                font-size: 14px; /* Slightly smaller text on mobile */
+            }
+
+            .audio-toggle {
+                bottom: 10px;
+                right: 10px;
+                width: 30px;
+                height: 30px;
+            }
+
+            .audio-toggle span {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Dynamic Static Overlay -->
-    <div class="static-overlay" id="static-overlay"></div>
+    <!-- Static Image Overlay -->
+    <div class="static-overlay">
+        <img id="static-image" src="static1.png" alt="Static Background">
+    </div>
 
     <!-- Title Image Container -->
     <div class="title-container">
-        <img src="title-image.png" alt="Title Image" width="512px">
+        <img src="title-image.png" alt="Title Image">
     </div>
 
     <!-- GIF Container -->
     <div class="gif-container">
-        <img id="gif-image" src="gifs/gif1.gif" alt="GIF Image" width="512px" height="512px"> <!-- Start with gif1.gif -->
+        <img id="gif-image" src="gifs/gif1.gif" alt="GIF Image">
     </div>
 
     <!-- Terminal Text Area -->
@@ -143,30 +143,29 @@
 
     <!-- Audio File -->
     <audio id="background-audio" loop>
-        <source src="audio/background-audio.mp3" type="audio/mp3"> <!-- Replace with your audio file path -->
+        <source src="audio/background-audio.mp3" type="audio/mp3">
         Your browser does not support the audio element.
     </audio>
 
     <script>
-        // Create Static Effect Dynamically
-        const staticOverlay = document.getElementById('static-overlay');
-        const pixelCount = Math.floor(window.innerWidth * window.innerHeight / (4 * 4)); // Smaller pixels, more of them
+        // Pre-generated static images cycling
+        const staticImages = [
+            "static1.png",
+            "static2.png",
+            "static3.png",
+            "static4.png",
+            "static5.png"
+        ];
 
-        function createPixel() {
-            const pixel = document.createElement('div');
-            pixel.classList.add('pixel');
-            pixel.style.backgroundColor = Math.random() > 0.5 ? 'white' : 'black';
-            return pixel;
+        let staticIndex = 0;
+        const staticImageElement = document.getElementById('static-image');
+
+        function cycleStaticImages() {
+            staticIndex = (staticIndex + 1) % staticImages.length;
+            staticImageElement.src = staticImages[staticIndex];
         }
 
-        function generateStatic() {
-            staticOverlay.innerHTML = ''; // Clear previous pixels
-            for (let i = 0; i < pixelCount; i++) {
-                staticOverlay.appendChild(createPixel());
-            }
-        }
-
-        setInterval(generateStatic, 1000); // Slower refresh rate for less frequent changes
+        setInterval(cycleStaticImages, 3000);  // Change image every 3 seconds
 
         // Audio Play/Pause Toggle
         const audioToggle = document.getElementById('audio-toggle');
@@ -184,16 +183,17 @@
             isPlaying = !isPlaying;
         });
 
-        // GIF Cycling
+        // GIF Cycling with lazy loading
         const totalGifs = 838;
         let gifIndex = 2;
-        const gifImage = document.getElementById('gif-image');
+        const gifImageElement = document.getElementById('gif-image');
 
-        function cycleGifs() {
-            gifImage.src = `gifs/gif${gifIndex}.gif`;
+        function loadNextGif() {
+            gifImageElement.src = `gifs/gif${gifIndex}.gif`;
             gifIndex = (gifIndex % totalGifs) + 1;
         }
-        setInterval(cycleGifs, 5000);
+
+        setInterval(loadNextGif, 5000);  // Change GIF every 5 seconds
 
         // Terminal-like Typing Effect
         let messages = [];
