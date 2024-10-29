@@ -183,14 +183,16 @@
             isPlaying = !isPlaying;
         });
 
-        // GIF Cycling with lazy loading and Text Terminal Sync
+        // GIF Cycling with lazy loading and Typing Effect Synchronization
         const totalGifs = 838;
         let gifIndex = 2;
         const gifImageElement = document.getElementById('gif-image');
 
         let messages = [];
         let textIndex = 0;
+        let charIndex = 0;
         const textElement = document.getElementById('text');
+        let typingSpeed = 62;
 
         // Load Messages
         async function loadMessages() {
@@ -205,18 +207,31 @@
             }
         }
 
-        // Function to synchronize both GIF and Text
+        // Function to synchronize both GIF and Typing Effect
         function syncContent() {
             // Load next GIF
             gifImageElement.src = `gifs/gif${gifIndex}.gif`;
             gifIndex = (gifIndex % totalGifs) + 1;
 
-            // Update Text
-            textElement.textContent = messages[textIndex];
-            textIndex = (textIndex + 1) % messages.length;
+            // Start typing the next message
+            typeText();
+        }
 
-            // Repeat every 5 seconds
-            setTimeout(syncContent, 5000);
+        function typeText() {
+            if (charIndex < messages[textIndex].length) {
+                textElement.textContent += messages[textIndex].charAt(charIndex);
+                charIndex++;
+                setTimeout(typeText, typingSpeed);
+            } else {
+                // Once typing is complete, clear the text and prepare the next message
+                setTimeout(() => {
+                    textElement.textContent = "";
+                    charIndex = 0;
+                    textIndex = (textIndex + 1) % messages.length;
+                    // Sync the next GIF and text after a short delay (matching the GIF change rate)
+                    setTimeout(syncContent, 2000); // 2-second pause after typing ends
+                }, 1000); // Pause before clearing text
+            }
         }
 
         loadMessages();
