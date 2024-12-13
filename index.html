@@ -92,6 +92,32 @@
             color: #00ff00;
         }
 
+        /* Mint Button Styling */
+        .mint-button-container {
+            position: fixed;
+            bottom: 20px;
+            text-align: center;
+            width: 100%;
+            z-index: 3;
+        }
+
+        .mint-button {
+            display: inline-block;
+            background-color: #00ff00;
+            color: black;
+            text-decoration: none;
+            font-size: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: "Courier New", Courier, monospace;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .mint-button:hover {
+            background-color: white;
+            color: #00ff00;
+        }
+
         /* Media Query for Mobile Screens */
         @media (max-width: 768px) {
             .title-container img, .gif-container img, .text-terminal {
@@ -140,6 +166,11 @@
     <button class="audio-toggle" id="audio-toggle">
         <span>&#9658;</span> <!-- Play Icon -->
     </button>
+
+    <!-- Mint Your Fade Button -->
+    <div class="mint-button-container">
+        <a href="https://launchmynft.io/sol/11627" class="mint-button" target="_blank">mint your fade</a>
+    </div>
 
     <!-- Audio File -->
     <audio id="background-audio" loop>
