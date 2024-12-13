@@ -80,7 +80,7 @@
             align-items: center;
             cursor: pointer;
             color: #00ff00;
-            z-index: 10; /* Ensure button is clickable */
+            z-index: 10;
         }
 
         .audio-toggle:hover {
@@ -97,7 +97,7 @@
             bottom: 20px;
             text-align: center;
             width: 100%;
-            z-index: 5; /* Ensure below the audio toggle */
+            z-index: 5;
         }
 
         .mint-button {
@@ -117,14 +117,13 @@
             color: #00ff00;
         }
 
-        /* Media Query for Mobile Screens */
         @media (max-width: 768px) {
             .title-container img, .gif-container img, .text-terminal {
-                width: 90vw; /* Scale to 90% of the viewport width */
+                width: 90vw;
             }
 
             .text-terminal {
-                font-size: 14px; /* Slightly smaller text on mobile */
+                font-size: 14px;
             }
 
             .audio-toggle {
@@ -141,37 +140,30 @@
     </style>
 </head>
 <body>
-    <!-- Static Image Overlay -->
     <div class="static-overlay">
         <img id="static-image" src="static1.png" alt="Static Background">
     </div>
 
-    <!-- Title Image Container -->
     <div class="title-container">
         <img src="title-image.png" alt="Title Image">
     </div>
 
-    <!-- GIF Container -->
     <div class="gif-container">
         <img id="gif-image" src="gifs/gif1.gif" alt="GIF Image">
     </div>
 
-    <!-- Terminal Text Area -->
     <div class="text-terminal" id="text-terminal">
         <span id="text"></span><span class="cursor"></span>
     </div>
 
-    <!-- Audio Toggle Button -->
     <button class="audio-toggle" id="audio-toggle">
-        <span>&#9658;</span> <!-- Play Icon -->
+        <span>&#9658;</span>
     </button>
 
-    <!-- Mint Your Fade Button -->
     <div class="mint-button-container">
         <a href="https://launchmynft.io/sol/11627" class="mint-button" target="_blank">mint your fade</a>
     </div>
 
-    <!-- Audio File -->
     <audio id="background-audio" loop>
         <source src="audio/background-audio.mp3" type="audio/mp3">
         Your browser does not support the audio element.
@@ -179,69 +171,32 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Terminal Text Logic
-            const textElement = document.getElementById('text');
-            let messages = [];
-            let textIndex = 0;
-            let charIndex = 0;
-            const typingSpeed = 50;
+            const gifImageElement = document.getElementById('gif-image');
+            let gifIndex = 1; // Start at the first GIF
+            const totalGifs = 838; // Total number of GIFs
 
-            async function loadMessages() {
-                try {
-                    console.log('Fetching messages.json...');
-                    const response = await fetch('messages.json');
-                    if (!response.ok) throw new Error('Failed to load messages.json');
-                    const data = await response.json();
-                    messages = data.messages;
-                    console.log('Messages loaded:', messages);
-                    if (messages.length > 0) {
-                        typeText();
-                    }
-                } catch (error) {
-                    console.error('Error loading messages:', error);
-                }
+            function cycleGifs() {
+                gifIndex = (gifIndex % totalGifs) + 1; // Increment and loop back
+                gifImageElement.src = `gifs/gif${gifIndex}.gif`; // Dynamically set the GIF source
+                console.log(`GIF changed to: gifs/gif${gifIndex}.gif`);
             }
 
-            function typeText() {
-                if (messages.length === 0) {
-                    console.error('No messages to display.');
-                    return;
-                }
-                if (charIndex < messages[textIndex].length) {
-                    textElement.textContent += messages[textIndex].charAt(charIndex);
-                    charIndex++;
-                    setTimeout(typeText, typingSpeed);
-                } else {
-                    setTimeout(clearText, 2000); // Pause before clearing the text
-                }
-            }
+            setInterval(cycleGifs, 5000); // Change GIF every 5 seconds
 
-            function clearText() {
-                textElement.textContent = "";
-                charIndex = 0;
-                textIndex = (textIndex + 1) % messages.length; // Loop through the messages
-                setTimeout(typeText, 500); // Delay before typing the next message
-            }
-
-            // Audio Toggle Logic
             const audioToggle = document.getElementById('audio-toggle');
             const audioElement = document.getElementById('background-audio');
             let isPlaying = false;
 
             audioToggle.addEventListener('click', () => {
-                console.log('Audio button clicked');
                 if (isPlaying) {
                     audioElement.pause();
-                    audioToggle.innerHTML = '<span>&#9658;</span>'; // Play Icon
+                    audioToggle.innerHTML = '<span>&#9658;</span>';
                 } else {
                     audioElement.play().catch(err => console.error('Audio playback failed:', err));
-                    audioToggle.innerHTML = '<span>&#10074;&#10074;</span>'; // Pause Icon
+                    audioToggle.innerHTML = '<span>&#10074;&#10074;</span>';
                 }
                 isPlaying = !isPlaying;
             });
-
-            // Start fetching and displaying messages
-            loadMessages();
         });
     </script>
 </body>
