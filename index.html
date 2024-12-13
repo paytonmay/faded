@@ -80,7 +80,7 @@
             align-items: center;
             cursor: pointer;
             color: #00ff00;
-            z-index: 2;
+            z-index: 10; /* Ensure button is clickable */
         }
 
         .audio-toggle:hover {
@@ -92,13 +92,12 @@
             color: #00ff00;
         }
 
-        /* Mint Button Styling */
         .mint-button-container {
             position: fixed;
             bottom: 20px;
             text-align: center;
             width: 100%;
-            z-index: 3;
+            z-index: 5; /* Ensure below the audio toggle */
         }
 
         .mint-button {
@@ -179,90 +178,29 @@
     </audio>
 
     <script>
-        // Pre-generated static images cycling
-        const staticImages = [
-            "static1.png",
-            "static2.png",
-            "static3.png",
-            "static4.png",
-            "static5.png"
-        ];
+        document.addEventListener('DOMContentLoaded', () => {
+            const audioToggle = document.getElementById('audio-toggle');
+            const audioElement = document.getElementById('background-audio');
+            let isPlaying = false;
 
-        let staticIndex = 0;
-        const staticImageElement = document.getElementById('static-image');
+            // Add click event listener for audio button
+            audioToggle.addEventListener('click', () => {
+                console.log('Audio button clicked');
+                if (isPlaying) {
+                    audioElement.pause();
+                    audioToggle.innerHTML = '<span>&#9658;</span>'; // Play Icon
+                } else {
+                    audioElement.play().catch(err => console.error('Audio playback failed:', err));
+                    audioToggle.innerHTML = '<span>&#10074;&#10074;</span>'; // Pause Icon
+                }
+                isPlaying = !isPlaying;
+            });
 
-        function cycleStaticImages() {
-            staticIndex = (staticIndex + 1) % staticImages.length;
-            staticImageElement.src = staticImages[staticIndex];
-        }
-
-        setInterval(cycleStaticImages, 3000);  // Change image every 3 seconds
-
-        // Audio Play/Pause Toggle
-        const audioToggle = document.getElementById('audio-toggle');
-        const audioElement = document.getElementById('background-audio');
-        let isPlaying = false;
-
-        audioToggle.addEventListener('click', () => {
-            if (isPlaying) {
-                audioElement.pause();
-                audioToggle.innerHTML = '<span>&#9658;</span>'; // Play Icon
-            } else {
-                audioElement.play();
-                audioToggle.innerHTML = '<span>&#10074;&#10074;</span>'; // Pause Icon
-            }
-            isPlaying = !isPlaying;
+            // Debugging audio readiness
+            audioElement.addEventListener('canplaythrough', () => {
+                console.log('Audio is ready to play');
+            });
         });
-
-        // GIF Cycling with lazy loading
-        const totalGifs = 838;
-        let gifIndex = 2;
-        const gifImageElement = document.getElementById('gif-image');
-
-        function loadNextGif() {
-            gifImageElement.src = `gifs/gif${gifIndex}.gif`;
-            gifIndex = (gifIndex % totalGifs) + 1;
-        }
-
-        setInterval(loadNextGif, 5000);  // Change GIF every 5 seconds
-
-        // Terminal-like Typing Effect
-        let messages = [];
-        let textIndex = 0;
-        let charIndex = 0;
-        const textElement = document.getElementById('text');
-        let typingSpeed = 50;
-
-        async function loadMessages() {
-            try {
-                const response = await fetch('messages.json');
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                messages = data.messages;
-                typeText();
-            } catch (error) {
-                console.error('There was a problem with the fetch operation:', error);
-            }
-        }
-
-        function typeText() {
-            if (charIndex < messages[textIndex].length) {
-                textElement.textContent += messages[textIndex].charAt(charIndex);
-                charIndex++;
-                setTimeout(typeText, typingSpeed);
-            } else {
-                setTimeout(clearText, 2000);
-            }
-        }
-
-        function clearText() {
-            textElement.textContent = "";
-            charIndex = 0;
-            textIndex = (textIndex + 1) % messages.length;
-            setTimeout(typeText, 500);
-        }
-
-        loadMessages();
     </script>
 </body>
 </html>
